@@ -57,18 +57,7 @@ if __name__ == '__main__':
     time.sleep(1)
     # 1)edit the request format to msg what you want to test  (line 61 - 69)
     ####################### system send message #############################
-    request = {
-        'seq': str(datetime.datetime.now()),
-        'dev': 'POW',
-        'num': '01',
-        'cmd': 'connect',
-        'par1': '',
-        'par2': '',
-        'par3': '',
-        'par4': ''
-    }
-    system.msg_send('/XS001/EMBEDDED_GROUP', request)
-    #######################################################################
+
     request = {
         'seq': str(datetime.datetime.now()),
         'dev': 'POW',
@@ -81,13 +70,15 @@ if __name__ == '__main__':
     }
     # system.msg_send('/XS001/EMBEDDED_GROUP', request)
     #######################################################################
+
+    #######################################################################
     request = {
         'seq': str(datetime.datetime.now()),
         'dev': 'POW',
         'num': '01',
-        'cmd': 'test',
-        'par1': {'WT01' : 15.2, 'WT02' : 260.3,'WT03' : 0,'WT04' : 0,'WT05' : 0},
-        'par2': {'PD01' : 60.0, 'PD02' : 300.0,'PD03' : 0,'PD04' : 0,'PD05' : 0},
+        'cmd': 'connect',
+        'par1': '',
+        'par2': '',
         'par3': '',
         'par4': ''
     }
@@ -96,3 +87,14 @@ if __name__ == '__main__':
     while True:
         if (len(system.queue) > 0):
             system.queue.pop()
+            request = {
+                'seq': str(datetime.datetime.now()),
+                'dev': 'POW',
+                'num': '01',
+                'cmd': 'test',
+                'par1': {'WT01': 15.2, 'WT02': 260.3, 'WT03': 0, 'WT04': 0, 'WT05': 0},
+                'par2': {'PD01': 60.0, 'PD02': 300.0, 'PD03': 0, 'PD04': 0, 'PD05': 0},
+                'par3': '',
+                'par4': ''
+            }
+            system.msg_send('/XS001/EMBEDDED_GROUP', request)

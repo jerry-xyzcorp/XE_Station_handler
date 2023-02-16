@@ -103,7 +103,7 @@ class Embedded_group():
                                     'COUNTERCLOCKWISE': 0x01}
 def Embedded_group_handler():
     #init
-    embedded_group = Embedded_group(ttyName='COM15')
+    embedded_group = Embedded_group(ttyName='COM4')
 
     #init thread
     mr = threading.Thread(target=embedded_group.msg_receiver)
@@ -113,30 +113,24 @@ def Embedded_group_handler():
         time.sleep(0.1)
         if (len(embedded_group.queue) > 0):
             request = embedded_group.queue.pop()
-            result = []
 
             ## 1. PROCESS CONNECTION CMD
-            if (request["cmd"] == 'connect'):
+            if (request["cmd"] == 'connect' or
+                request["cmd"] == 'disconnect' or
+                request["cmd"] == 'is_connected'):
                 if(embedded_group.STM.connect(embedded_group.ttyName)):
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.TF_LIST['TRUE']]
+                    embedded_group.value = embedded_group.DEF.TF_LIST['TRUE']
                 else:
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.TF_LIST['FALSE']]
-            elif (request["cmd"] == 'disconnect'):
-                if(embedded_group.STM.disconnect(embedded_group.ttyName)):
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.TF_LIST['TRUE']]
-                else:
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.TF_LIST['FALSE']]
+                    embedded_group.value = embedded_group.DEF.TF_LIST['FALSE']
+
             elif (request["cmd"] == 'get_connection'):
                 if(embedded_group.STM.is_connected(embedded_group.ttyName)):
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.CONNECTED]
+                    embedded_group.value = embedded_group.DEF.TF_LIST['CONNECTED']
                 else:
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.DISCONNECTED]
-            elif (request["cmd"] == 'is_connected'):
-                if(embedded_group.STM.disconnect(embedded_group.ttyName)):
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.TF_LIST['TRUE']]
-                else:
-                    embedded_group.value = embedded_group.DEF.CONNECTION_LIST[embedded_group.DEF.TF_LIST['FALSE']]
+                    embedded_group.value = embedded_group.DEF.TF_LIST['DISCONNECTED']
+
             else:
+                result = []
                 result = embedded_group.STM.sendSerial(cmd=embedded_group.DEF.CMD_LIST[request["cmd"]],
                                                       machineID=embedded_group.DEF.DEV_ID[request["dev"]],
                                                       par1=request["par1"],
@@ -144,10 +138,15 @@ def Embedded_group_handler():
                                                       par3=request["par3"],
                                                       par4=request["par4"])
                 ## error
+                # print('>> result : ', result)
+
                 if (result != True) or (result != False):
                     if str(result) == "'NoneType' object has no attribute 'is_open'":
                         embedded_group.code = 1801
                         embedded_group.msg = "SERIAL IS NOT OPENED"
+                    elif str(result) == "STM-PC NETWORK ISSUE!": # => DICT OR CFG FILE만들기
+                        embedded_group.code = 1802
+                        embedded_group.msg = str(result)
 
 
             response = {

@@ -2,5 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/embedded_group_handler" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/embedded_group_handler_org" vcs="Git" />
   </component>
 </project>
